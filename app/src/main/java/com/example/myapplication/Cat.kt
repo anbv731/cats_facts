@@ -1,6 +1,8 @@
 package com.example.myapplication
 
- class Cat  {
+import android.graphics.Bitmap
+
+class Cat  {
 
      var text: String=""
      var image: String=""

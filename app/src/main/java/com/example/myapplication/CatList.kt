@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 
 class CatAdapter(private val cats: List<Cat>) : RecyclerView.Adapter<CatViewHolder>() {
 
@@ -27,17 +28,21 @@ class CatAdapter(private val cats: List<Cat>) : RecyclerView.Adapter<CatViewHold
 }
 
 class CatViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
+    private val imageUrl: String = "https://bing.ioliu.cn/v1/rand"
     //находим ImageView
     private val imageView: ImageView = itemView.findViewById(R.id.imageViewId)
 
     //Находим TextView
     private val textView: TextView = itemView.findViewById(R.id.textViewId)
 
+
+
     fun bind(cat: Cat) {
         textView.text = cat.text //загружаем текст в TextView
 
-//        Glide.with(itemView).load(cat.image).into(imageView)
+        Glide.with(itemView).load(cat.image).into(imageView) //загружаем картинку в imageView
+
+
 //
 //        itemView.setOnClickListener {
 //            DetailActivity.openDetailActivity(itemView.context, cat.text)

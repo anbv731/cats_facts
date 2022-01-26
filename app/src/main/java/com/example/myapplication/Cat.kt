@@ -1,9 +1,8 @@
 package com.example.myapplication
+import io.realm.RealmObject
 
-import android.graphics.Bitmap
+open class Cat:RealmObject()  {
 
-class Cat  {
+    lateinit var text: String
 
-     var text: String=""
-     var image: String=""
 }

@@ -16,6 +16,8 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.bumptech.glide.Glide
+import io.realm.Realm
+import io.realm.RealmConfiguration
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.cat_item.*
 import org.json.JSONArray
@@ -29,6 +31,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        initRealm()
+        showListFromDB()
 
 
         val queue = Volley.newRequestQueue(this)
@@ -41,14 +45,15 @@ class MainActivity : AppCompatActivity() {
         val stringRequest = StringRequest(
             0,
             url,
-            Response.Listener { response ->
+            { response ->
 
                 val catList = parseResponse(response)
-                getImageFromServer(queue, catList)
+                saveIntoDB(catList)
+                showListFromDB()
 
 
             },
-            Response.ErrorListener {
+            {
                 println(it.message)
                 Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
 
@@ -59,27 +64,27 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun getImageFromServer(queue: RequestQueue, catList: List<Cat>) {
-        for (item in catList) {
-            val imageRequest = StringRequest(
-                0,
-                imageUrl,
-                Response.Listener { response ->
-                    item.image = parseImageResponse(response)
-                    if (catList.last().image != "") {
-                        setList(catList)
-                    }
-
-                },
-                Response.ErrorListener {
-                    Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
-                }
-            )
-
-            queue.add(imageRequest)
-        }
-
-    }
+//    private fun getImageFromServer(queue: RequestQueue, catList: List<Cat>) {
+//        for (item in catList) {
+//            val imageRequest = StringRequest(
+//                0,
+//                imageUrl,
+//                { response ->
+//                    item.image = parseImageResponse(response)
+//                    if (catList.last().image != "") {
+//                        setList(catList)
+//                    }
+//
+//                },
+//                {
+//                    Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
+//                }
+//            )
+//
+//            queue.add(imageRequest)
+//        }
+//
+//    }
 
     private fun parseImageResponse(responseText: String): String {
         val jsonObject = JSONObject(responseText)
@@ -119,6 +124,30 @@ class MainActivity : AppCompatActivity() {
         val layoutManager = LinearLayoutManager(this)
         recyclerViewId.layoutManager = layoutManager
     }
+
+    private fun initRealm() {
+        Realm.init(this)
+        val config = RealmConfiguration.Builder().deleteRealmIfMigrationNeeded().build()
+        Realm.setDefaultConfiguration(config)
+    }
+    fun saveIntoDB (cats:List<Cat>){
+        val realm = Realm.getDefaultInstance()
+        realm.beginTransaction()
+        val catsDB=realm.where(Cat::class.java).findAll()
+        realm.copyToRealmOrUpdate(cats)
+        realm.commitTransaction()
+    }
+
+    fun loadFromDB ():List<Cat>{
+        val realm=Realm.getDefaultInstance()
+        return realm.where(Cat::class.java).findAll()
+    }
+
+    fun showListFromDB (){
+        val cats=loadFromDB()
+        setList(cats)
+    }
+
 
 
 }
